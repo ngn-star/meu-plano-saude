@@ -1,0 +1,1226 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>🌿 Meu Plano de Saúde</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap');
+
+/* ── INVERNO BRILHANTE ── */
+:root {
+  --royal:#1B2FC2; --mag:#CC1A6D; --cherry:#CC0033;
+  --em:#007A5E; --ice:#EEF2FF; --white:#FFF;
+  --ink:#0A0A1A; --slate:#3B3F5C; --mist:#C8CFF5;
+  --blush:#FCE4EF; --mint:#D4F0E8; --bg:#F4F6FF;
+  --font:'Space Grotesk',sans-serif; --mono:'Space Mono',monospace;
+  --r:14px; --sh:0 2px 16px rgba(27,47,194,.09);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%}
+body{font-family:var(--font);background:var(--bg);color:var(--ink);min-height:100vh;overscroll-behavior:none}
+
+/* ── LOCK SCREEN ── */
+#lock{position:fixed;inset:0;background:var(--ink);z-index:9999;display:flex;align-items:center;justify-content:center;padding:24px}
+.lock-card{background:var(--white);border-radius:20px;padding:40px 32px;max-width:360px;width:100%;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.4)}
+.lock-emoji{font-size:52px;margin-bottom:16px}
+.lock-title{font-size:22px;font-weight:700;color:var(--ink);margin-bottom:6px}
+.lock-sub{font-size:13px;color:var(--slate);margin-bottom:28px}
+.lock-input{width:100%;border:2px solid var(--mist);border-radius:10px;padding:14px 16px;font-family:var(--font);font-size:16px;outline:none;text-align:center;letter-spacing:4px;margin-bottom:14px;transition:border-color .2s}
+.lock-input:focus{border-color:var(--royal)}
+.lock-btn{width:100%;padding:14px;border:none;border-radius:10px;background:var(--royal);color:#fff;font-family:var(--font);font-size:15px;font-weight:700;cursor:pointer;transition:all .2s}
+.lock-btn:hover{background:#1526A8;transform:translateY(-1px)}
+.lock-err{font-size:12px;color:var(--cherry);margin-top:8px;min-height:18px}
+.lock-hint{font-size:11px;color:var(--mist);margin-top:20px}
+
+/* ── APP SHELL ── */
+#app{display:none}
+.topbar{background:var(--ink);padding:0 16px;display:flex;align-items:center;justify-content:space-between;height:56px;position:sticky;top:0;z-index:200}
+.logo{font-size:16px;font-weight:700;color:var(--white);display:flex;align-items:center;gap:7px}
+.logo em{color:var(--mag);font-style:normal}
+.wpill{background:var(--royal);color:#fff;font-size:10px;font-weight:700;padding:3px 9px;border-radius:99px;font-family:var(--mono);white-space:nowrap}
+.logout-btn{background:none;border:1px solid rgba(255,255,255,.2);color:rgba(255,255,255,.6);font-size:11px;padding:4px 10px;border-radius:99px;cursor:pointer;font-family:var(--font)}
+.logout-btn:hover{border-color:rgba(255,255,255,.5);color:#fff}
+
+/* ── TAB NAV ── */
+.tab-nav{background:var(--white);border-bottom:2px solid var(--mist);display:flex;overflow-x:auto;padding:0 8px;scrollbar-width:none;position:sticky;top:56px;z-index:100}
+.tab-nav::-webkit-scrollbar{display:none}
+.tab-btn{flex-shrink:0;padding:11px 13px 9px;border:none;background:none;cursor:pointer;font-family:var(--font);font-size:12px;font-weight:500;color:var(--slate);border-bottom:3px solid transparent;margin-bottom:-2px;transition:all .18s;white-space:nowrap;display:flex;align-items:center;gap:4px;-webkit-tap-highlight-color:transparent}
+.tab-btn.active{color:var(--royal);border-bottom-color:var(--royal);font-weight:700}
+
+/* ── PANES ── */
+.pane{padding:20px 14px;max-width:900px;margin:0 auto;display:none;animation:fi .22s}
+.pane.active{display:block}
+@keyframes fi{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+
+/* ── CARDS ── */
+.card{background:var(--white);border-radius:var(--r);padding:18px;margin-bottom:14px;box-shadow:var(--sh)}
+.card-title{font-size:15px;font-weight:700;margin-bottom:12px;display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+
+/* ── PILLS ── */
+.pill{display:inline-flex;align-items:center;gap:3px;padding:2px 8px;border-radius:99px;font-size:10px;font-weight:600;font-family:var(--mono)}
+.pb{background:var(--ice);color:var(--royal)}.pp{background:var(--blush);color:var(--mag)}
+.pg{background:var(--mint);color:var(--em)}.pr{background:#FFE5EA;color:var(--cherry)}
+.pa{background:#FFF3CC;color:#92400E}
+
+/* ── WEEK GRID ── */
+.wgrid{display:grid;grid-template-columns:repeat(7,1fr);gap:5px;margin-bottom:16px}
+.dc{background:var(--white);border:2px solid var(--mist);border-radius:10px;padding:9px 4px;text-align:center;cursor:pointer;transition:all .16s;-webkit-tap-highlight-color:transparent}
+.dc:hover,.dc:active{border-color:var(--royal);transform:translateY(-2px)}
+.dc.tennis{border-color:var(--mag);background:var(--blush)}
+.dc.wknd{background:var(--ice)}
+.dc .dn{font-size:9px;font-weight:700;color:var(--slate);text-transform:uppercase;letter-spacing:.7px}
+.dc .de{font-size:18px;margin:4px 0}
+.dc .dl{font-size:8px;color:var(--slate);line-height:1.2}
+
+/* ── BANNER ── */
+.banner{border-radius:12px;padding:13px 16px;margin-bottom:14px;display:flex;gap:11px;align-items:flex-start;color:#fff}
+.bi{font-size:22px;flex-shrink:0;margin-top:1px}
+.bt{font-size:14px;font-weight:700;margin-bottom:2px}
+.bb{font-size:11px;opacity:.88;line-height:1.5}
+
+/* ── MEAL ── */
+.meal-block{border-radius:10px;overflow:hidden;margin-bottom:10px;border:1px solid var(--ice)}
+.meal-head{padding:9px 13px;font-size:12px;font-weight:700;display:flex;align-items:center;gap:5px;background:var(--bg)}
+.meal-opts{padding:0 13px 10px}
+.mopt{font-size:12px;padding:5px 0;display:flex;gap:7px;align-items:flex-start;border-bottom:1px solid var(--ice)}
+.mopt:last-child{border:none}
+.onum{flex-shrink:0;width:18px;height:18px;background:var(--royal);color:#fff;border-radius:50%;font-size:9px;font-weight:700;display:flex;align-items:center;justify-content:center;margin-top:2px;font-family:var(--mono)}
+.day-note{background:var(--blush);border-radius:8px;padding:8px 11px;margin-bottom:10px;font-size:11px;color:var(--mag);font-weight:600;line-height:1.5}
+
+/* ── ACCORDION ── */
+.acc{margin-bottom:6px}
+.acc-h{width:100%;display:flex;align-items:center;justify-content:space-between;padding:12px 14px;background:var(--white);border:2px solid var(--mist);border-radius:10px;cursor:pointer;font-family:var(--font);font-size:13px;font-weight:600;color:var(--ink);transition:all .16s;text-align:left;-webkit-tap-highlight-color:transparent}
+.acc-h.open{border-color:var(--royal);background:var(--ice);border-radius:10px 10px 0 0}
+.acc-b{display:none;padding:14px;background:var(--white);border:2px solid var(--royal);border-top:none;border-radius:0 0 10px 10px}
+.acc-b.open{display:block}
+.chev{transition:transform .18s;font-size:11px}
+.chev.open{transform:rotate(180deg)}
+
+/* ── EXERCISE ── */
+.exlist{list-style:none}
+.exlist li{padding:6px 0;font-size:12px;border-bottom:1px dashed var(--ice);display:flex;gap:8px;align-items:flex-start;line-height:1.5}
+.exlist li:last-child{border:none}
+.edot{width:6px;height:6px;border-radius:50%;background:var(--royal);flex-shrink:0;margin-top:5px}
+.ex-svg-wrap{background:var(--ice);border-radius:10px;padding:16px;text-align:center;margin-bottom:12px}
+.ex-svg-wrap svg{max-width:260px;margin:0 auto;display:block}
+
+/* ── HABIT GRID ── */
+.hgrid{display:grid;grid-template-columns:160px repeat(7,1fr);gap:1px;font-size:10px;min-width:560px}
+.hgh{font-weight:700;padding:6px 3px;text-align:center;background:var(--ink);color:#fff;border-radius:4px}
+.hgh:first-child{text-align:left;padding-left:8px;border-radius:6px 0 0 6px}
+.hgl{padding:6px 7px;font-size:11px;display:flex;align-items:center;gap:4px;background:var(--white);border-radius:6px 0 0 6px;border:1px solid var(--ice);line-height:1.3}
+.hgc{display:flex;align-items:center;justify-content:center;background:var(--white);border:1px solid var(--ice);border-left:none;min-height:38px}
+.hgc:last-child{border-radius:0 6px 6px 0}
+.hcb{width:22px;height:22px;border-radius:5px;border:2px solid var(--mist);cursor:pointer;appearance:none;-webkit-appearance:none;position:relative;transition:all .12s;background:transparent;flex-shrink:0;-webkit-tap-highlight-color:transparent}
+.hcb:checked{background:var(--royal);border-color:var(--royal)}
+.hcb:checked::after{content:'✓';color:#fff;font-size:12px;font-weight:700;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%)}
+.hscroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+
+/* ── SCORES ── */
+.srow{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px}
+.sc{background:var(--white);border-radius:12px;padding:13px;text-align:center;box-shadow:var(--sh)}
+.sv{font-family:var(--mono);font-size:22px;font-weight:700;color:var(--royal)}
+.sl{font-size:10px;color:var(--slate);margin-top:2px}
+.sc.pink .sv{color:var(--mag)}.sc.green .sv{color:var(--em)}
+
+/* ── MEASURES ── */
+.mgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:14px}
+@media(min-width:480px){.mgrid{grid-template-columns:repeat(3,1fr)}}
+@media(min-width:700px){.mgrid{grid-template-columns:repeat(5,1fr)}}
+.mic{background:var(--ice);border-radius:10px;padding:11px}
+.mic label{font-size:9px;font-weight:700;color:var(--slate);text-transform:uppercase;letter-spacing:.4px;display:block;margin-bottom:4px}
+.mi{width:100%;border:2px solid var(--mist);border-radius:7px;padding:7px 8px;font-family:var(--mono);font-size:15px;font-weight:700;color:var(--ink);background:#fff;outline:none}
+.mi:focus{border-color:var(--royal)}
+.mu{font-size:9px;color:var(--slate);margin-top:3px}
+.pb-wrap{height:7px;background:var(--mist);border-radius:99px;overflow:hidden;margin-top:5px}
+.pb-fill{height:100%;background:linear-gradient(90deg,var(--royal),var(--mag));border-radius:99px;transition:width .6s ease}
+
+/* ── TABLE ── */
+.tscroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.htab{width:100%;border-collapse:collapse;font-size:11px;min-width:540px}
+.htab th{background:var(--ink);color:#fff;padding:7px 9px;text-align:left;font-weight:600;white-space:nowrap}
+.htab td{padding:7px 9px;border-bottom:1px solid var(--ice);white-space:nowrap}
+.htab tr:nth-child(even) td{background:var(--bg)}
+
+/* ── SHOPPING ── */
+.shop-sec{margin-bottom:16px}
+.shop-sec h3{font-size:13px;font-weight:700;margin-bottom:7px;display:flex;align-items:center;gap:5px;padding-bottom:6px;border-bottom:2px solid var(--ice)}
+.sitem{display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:8px;margin-bottom:3px;background:var(--white);border:1px solid var(--ice);font-size:12px;cursor:pointer;transition:background .12s;-webkit-tap-highlight-color:transparent}
+.sitem.ck{background:var(--mint);text-decoration:line-through;color:var(--slate)}
+.scb{width:18px;height:18px;border-radius:5px;border:2px solid var(--mist);appearance:none;-webkit-appearance:none;cursor:pointer;position:relative;flex-shrink:0;transition:all .12s}
+.scb:checked{background:var(--em);border-color:var(--em)}
+.scb:checked::after{content:'✓';color:#fff;font-size:10px;font-weight:700;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%)}
+
+/* ── RECIPES ── */
+.rgrid{display:grid;grid-template-columns:1fr;gap:12px}
+@media(min-width:480px){.rgrid{grid-template-columns:repeat(2,1fr)}}
+@media(min-width:720px){.rgrid{grid-template-columns:repeat(3,1fr)}}
+.rcard{background:var(--white);border-radius:12px;overflow:hidden;box-shadow:var(--sh);cursor:pointer;transition:transform .18s;-webkit-tap-highlight-color:transparent}
+.rcard:hover,.rcard:active{transform:translateY(-2px)}
+.rcard-top{height:110px;display:flex;align-items:center;justify-content:center;font-size:48px;background:var(--ice)}
+.rcard-body{padding:12px}
+.rcard-title{font-size:13px;font-weight:700;margin-bottom:3px}
+.rcard-meta{font-size:10px;color:var(--slate);display:flex;gap:6px;flex-wrap:wrap;margin-bottom:7px}
+.filter-row{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+
+/* ── TIPS ── */
+.tip{border-radius:12px;padding:14px;margin-bottom:10px;display:flex;gap:11px;align-items:flex-start}
+.tip-i{font-size:24px;flex-shrink:0}
+.tip-t{font-size:13px;font-weight:700;margin-bottom:4px}
+.tip-b{font-size:11px;line-height:1.6;color:var(--slate)}
+.tip.blue{background:var(--ice)}.tip.pink{background:var(--blush)}
+.tip.green{background:var(--mint)}.tip.red{background:#FFE5EA}.tip.gold{background:#FFF8CC}
+
+/* ── GLUCOSE STEPS ── */
+.gsteps{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+@media(min-width:600px){.gsteps{grid-template-columns:repeat(3,1fr)}}
+.gs{background:var(--ice);border-radius:9px;padding:12px;border-left:4px solid var(--royal)}
+.gsn{font-family:var(--mono);font-size:9px;font-weight:700;color:var(--royal);text-transform:uppercase;letter-spacing:.8px;margin-bottom:2px}
+.gst{font-size:12px;font-weight:700;margin-bottom:2px}
+.gsb{font-size:10px;color:var(--slate);line-height:1.5}
+
+/* ── BEST FOODS ── */
+.bgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+@media(min-width:500px){.bgrid{grid-template-columns:repeat(3,1fr)}}
+@media(min-width:700px){.bgrid{grid-template-columns:repeat(4,1fr)}}
+.bcard{background:var(--white);border-radius:10px;padding:11px;border:2px solid var(--ice);text-align:center}
+.bcard.top{border-color:var(--em);background:var(--mint)}
+.be{font-size:26px;margin-bottom:4px}
+.bn{font-size:11px;font-weight:700;margin-bottom:2px}
+.bw{font-size:9px;color:var(--slate);line-height:1.4}
+
+/* ── MODAL ── */
+.modal-ov{position:fixed;inset:0;background:rgba(10,10,26,.65);z-index:500;display:none;align-items:flex-end;justify-content:center;padding:0}
+@media(min-width:600px){.modal-ov{align-items:center;padding:16px}}
+.modal-ov.open{display:flex}
+.modal{background:#fff;border-radius:20px 20px 0 0;max-width:560px;width:100%;max-height:90vh;overflow-y:auto;-webkit-overflow-scrolling:touch}
+@media(min-width:600px){.modal{border-radius:16px}}
+.modal-head{padding:18px 18px 0;display:flex;align-items:flex-start;justify-content:space-between;gap:10px;position:sticky;top:0;background:#fff;z-index:1;padding-bottom:12px;border-bottom:1px solid var(--ice)}
+.modal-body{padding:16px 18px 32px}
+.mcl{background:none;border:none;font-size:20px;cursor:pointer;color:var(--slate);line-height:1;flex-shrink:0;-webkit-tap-highlight-color:transparent}
+.modal-drag{width:40px;height:4px;background:var(--mist);border-radius:99px;margin:0 auto 14px}
+
+/* ── BTNS ── */
+.btn{display:inline-flex;align-items:center;gap:5px;padding:9px 16px;border-radius:9px;border:none;cursor:pointer;font-family:var(--font);font-size:12px;font-weight:600;transition:all .18s;-webkit-tap-highlight-color:transparent}
+.btn-p{background:var(--royal);color:#fff}.btn-p:hover{background:#1526A8}
+.btn-m{background:var(--mag);color:#fff}.btn-m:hover{background:#A81559}
+.btn-g{background:var(--ice);color:var(--royal)}.btn-g:hover{background:var(--mist)}
+.btn-sm{padding:5px 10px;font-size:11px}
+.btn-row{display:flex;gap:7px;flex-wrap:wrap}
+
+/* ── HISTORY LIST ── */
+.hlist{list-style:none}
+.hlist li{display:flex;align-items:center;justify-content:space-between;padding:8px 11px;border-radius:8px;margin-bottom:4px;background:var(--ice);font-size:12px;gap:8px}
+
+/* ── TEXTAREA ── */
+.ntxt{width:100%;min-height:80px;border:2px solid var(--mist);border-radius:9px;padding:9px 12px;font-family:var(--font);font-size:13px;resize:vertical;outline:none}
+.ntxt:focus{border-color:var(--royal)}
+
+/* ── TOAST ── */
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--ink);color:#fff;padding:10px 18px;border-radius:99px;font-size:12px;font-weight:600;z-index:999;opacity:0;transition:all .28s;white-space:nowrap;pointer-events:none}
+.toast.show{transform:translateX(-50%) translateY(0);opacity:1}
+
+/* ── DIVIDER ── */
+.div{height:1px;background:var(--ice);margin:12px 0}
+.sect-title{font-size:16px;font-weight:700;color:var(--ink);margin-bottom:14px;display:flex;align-items:center;gap:8px}
+
+/* ── EMERGENCY ── */
+.sos{background:linear-gradient(135deg,var(--cherry),var(--mag));border-radius:14px;padding:20px;margin-bottom:14px;color:#fff}
+.sos-title{font-size:15px;font-weight:700;margin-bottom:10px}
+.sos-body{font-size:12px;line-height:1.9;opacity:.95}
+
+/* ── WEEKLY NOTE ── */
+.wnote{font-size:11px;color:var(--slate);padding:8px 11px;background:var(--ice);border-radius:8px;margin-bottom:12px;display:flex;gap:6px;align-items:center}
+
+/* ── INPUT ── */
+.txt-input{border:2px solid var(--mist);border-radius:8px;padding:9px 12px;font-family:var(--font);font-size:13px;outline:none;transition:border-color .2s;width:100%}
+.txt-input:focus{border-color:var(--royal)}
+</style>
+</head>
+<body>
+
+<!-- ══ LOCK SCREEN ══════════════════════════════════ -->
+<div id="lock">
+  <div class="lock-card">
+    <div class="lock-emoji">🌿</div>
+    <div class="lock-title">Meu Plano de Saúde</div>
+    <div class="lock-sub">Digite a senha para acessar</div>
+    <input class="lock-input" type="password" id="pwd-input" placeholder="••••••"
+      onkeydown="if(event.key==='Enter')tryLogin()" autocomplete="current-password">
+    <button class="lock-btn" onclick="tryLogin()">Entrar →</button>
+    <div class="lock-err" id="pwd-err"></div>
+    <div class="lock-hint">🔒 Acesso pessoal</div>
+  </div>
+</div>
+
+<!-- ══ APP ══════════════════════════════════════════ -->
+<div id="app">
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <div class="logo">🌿 <em>Meu</em>Plano</div>
+  <div style="display:flex;align-items:center;gap:8px">
+    <span class="wpill" id="wbadge">...</span>
+    <button class="logout-btn" onclick="logout()">Sair</button>
+  </div>
+</div>
+
+<!-- TABS -->
+<nav class="tab-nav">
+  <button class="tab-btn active" onclick="sw('cardapio')" id="tab-cardapio">🍽️ Cardápio</button>
+  <button class="tab-btn" onclick="sw('exercicios')" id="tab-exercicios">🏋️ Exercícios</button>
+  <button class="tab-btn" onclick="sw('habitos')" id="tab-habitos">✅ Hábitos</button>
+  <button class="tab-btn" onclick="sw('medidas')" id="tab-medidas">📏 Medidas</button>
+  <button class="tab-btn" onclick="sw('compras')" id="tab-compras">🛒 Compras</button>
+  <button class="tab-btn" onclick="sw('receitas')" id="tab-receitas">👨‍🍳 Receitas</button>
+  <button class="tab-btn" onclick="sw('dicas')" id="tab-dicas">💡 Dicas</button>
+</nav>
+
+<!-- ═══════════ CARDÁPIO ═══════════ -->
+<div class="pane active" id="pane-cardapio">
+  <div class="wnote">📋 Semana de <strong id="wlabel">...</strong> · Cardápio gerado por IA · atualizado semanalmente</div>
+  <div class="wgrid">
+    <div class="dc" onclick="scrollToDay('seg-f')"><div class="dn">Seg</div><div class="de">💪</div><div class="dl">Proteína</div></div>
+    <div class="dc tennis" onclick="scrollToDay('ter-f')"><div class="dn">Ter</div><div class="de">🎾</div><div class="dl">Tênis 8h</div></div>
+    <div class="dc" onclick="scrollToDay('qua-f')"><div class="dn">Qua</div><div class="de">🫐</div><div class="dl">Antioxid.</div></div>
+    <div class="dc" onclick="scrollToDay('qui-f')"><div class="dn">Qui</div><div class="de">🌿</div><div class="dl">Anti-inf.</div></div>
+    <div class="dc tennis" onclick="scrollToDay('sex-f')"><div class="dn">Sex</div><div class="de">🎾</div><div class="dl">Tênis 8h</div></div>
+    <div class="dc wknd" onclick="scrollToDay('sab-f')"><div class="dn">Sáb</div><div class="de">😌</div><div class="dl">Flex</div></div>
+    <div class="dc wknd" onclick="scrollToDay('dom-f')"><div class="dn">Dom</div><div class="de">🔄</div><div class="dl">Renovar</div></div>
+  </div>
+  <div class="banner" style="background:linear-gradient(135deg,var(--royal),var(--mag))">
+    <div class="bi">🩸</div>
+    <div><div class="bt">Método Glucose Goddess</div>
+    <div class="bb">Ordem obrigatória: 1. fibras (salada/legumes) → 2. proteína/gordura → 3. carboidrato por último · Vinagre de maçã 10min antes dos carbos</div></div>
+  </div>
+  <div id="food-content"></div>
+  <div class="card">
+    <div class="card-title">📂 Histórico de Cardápios</div>
+    <ul class="hlist" id="food-hist"></ul>
+  </div>
+</div>
+
+<!-- ═══════════ EXERCÍCIOS ═══════════ -->
+<div class="pane" id="pane-exercicios">
+  <div class="banner" style="background:linear-gradient(135deg,var(--em),#00a880)">
+    <div class="bi">🐾</div>
+    <div><div class="bt">Caminhadas com Pippo · 2× ao dia · 30 min</div>
+    <div class="bb">Manhã (antes do café) + noite (após jantar). Pós-refeição reduz glicose em até 30%!</div></div>
+  </div>
+  <div class="wgrid">
+    <div class="dc" onclick="tog('ex-s')"><div class="dn">Seg</div><div class="de">🏋️</div><div class="dl">Força</div></div>
+    <div class="dc tennis" onclick="tog('ex-t')"><div class="dn">Ter</div><div class="de">🎾</div><div class="dl">Tênis 8h</div></div>
+    <div class="dc" onclick="tog('ex-q')"><div class="dn">Qua</div><div class="de">⚡</div><div class="dl">HIIT</div></div>
+    <div class="dc" onclick="tog('ex-u')"><div class="dn">Qui</div><div class="de">💪</div><div class="dl">Membros</div></div>
+    <div class="dc tennis" onclick="tog('ex-x')"><div class="dn">Sex</div><div class="de">🎾</div><div class="dl">Tênis 8h</div></div>
+    <div class="dc wknd" onclick="tog('ex-b')"><div class="dn">Sáb</div><div class="de">🚶</div><div class="dl">Ativo</div></div>
+    <div class="dc wknd" onclick="tog('ex-d')"><div class="dn">Dom</div><div class="de">🧘</div><div class="dl">Descanso</div></div>
+  </div>
+
+  <!-- SEG -->
+  <div class="acc"><button class="acc-h" onclick="tog('ex-s')">💪 Segunda · Força + Core · Academia · 45-50 min <span class="chev" id="c-ex-s">▼</span></button>
+  <div class="acc-b" id="ex-s">
+    <div class="ex-svg-wrap">
+      <svg viewBox="0 0 280 160" xmlns="http://www.w3.org/2000/svg">
+        <rect width="280" height="160" rx="8" fill="#EEF2FF"/>
+        <rect x="60" y="44" width="160" height="5" rx="2.5" fill="#CC1A6D"/>
+        <rect x="55" y="36" width="12" height="21" rx="3" fill="#CC1A6D"/>
+        <rect x="213" y="36" width="12" height="21" rx="3" fill="#CC1A6D"/>
+        <circle cx="140" cy="27" r="13" fill="#1B2FC2"/>
+        <line x1="140" y1="40" x2="140" y2="82" stroke="#1B2FC2" stroke-width="3.5" stroke-linecap="round"/>
+        <line x1="140" y1="54" x2="114" y2="46" stroke="#1B2FC2" stroke-width="3.5" stroke-linecap="round"/>
+        <line x1="140" y1="54" x2="166" y2="46" stroke="#1B2FC2" stroke-width="3.5" stroke-linecap="round"/>
+        <line x1="140" y1="82" x2="125" y2="115" stroke="#1B2FC2" stroke-width="3.5" stroke-linecap="round"/>
+        <line x1="140" y1="82" x2="155" y2="115" stroke="#1B2FC2" stroke-width="3.5" stroke-linecap="round"/>
+        <line x1="125" y1="115" x2="118" y2="138" stroke="#1B2FC2" stroke-width="3.5" stroke-linecap="round"/>
+        <line x1="155" y1="115" x2="162" y2="138" stroke="#1B2FC2" stroke-width="3.5" stroke-linecap="round"/>
+        <text x="140" y="155" text-anchor="middle" font-size="11" fill="#3B3F5C" font-family="Space Grotesk,sans-serif">Agachamento no Smith</text>
+      </svg>
+    </div>
+    <ul class="exlist">
+      <li><div class="edot"></div>Aquecimento: 10 min esteira inclinação 5% — ritmo de caminhada</li>
+      <li><div class="edot"></div>Agachamento no Smith: 3×12 · descer devagar (3s), subir forte</li>
+      <li><div class="edot"></div>Leg press 45°: 3×15 · não trave os joelhos no topo</li>
+      <li><div class="edot"></div>Remada baixa na polia: 3×12 · cotovelada para trás, costas retas</li>
+      <li><div class="edot"></div>Prancha frontal: 3×30–45 seg · quadril alinhado, respire</li>
+      <li><div class="edot"></div>Abdominal bicicleta: 3×20 · cotovelo no joelho oposto, devagar</li>
+      <li><div class="edot"></div>Alongamento: 5 min · quadríceps, ísquio, coluna</li>
+    </ul>
+    <div class="div"></div>
+    <div style="font-size:11px;color:var(--slate)">🐾 <strong>Pippo manhã:</strong> 7h30 antes da academia · <strong>Pippo tarde:</strong> 18h</div>
+  </div></div>
+
+  <!-- TER -->
+  <div class="acc"><button class="acc-h" onclick="tog('ex-t')" style="border-color:var(--mag)">🎾 Terça · Tênis 8h · Aula regular <span class="chev" id="c-ex-t">▼</span></button>
+  <div class="acc-b" id="ex-t" style="border-color:var(--mag)">
+    <div class="ex-svg-wrap" style="background:var(--blush)">
+      <svg viewBox="0 0 280 160" xmlns="http://www.w3.org/2000/svg">
+        <rect width="280" height="160" rx="8" fill="#FCE4EF"/>
+        <circle cx="140" cy="28" r="13" fill="#CC1A6D"/>
+        <line x1="140" y1="41" x2="140" y2="85" stroke="#CC1A6D" stroke-width="3.5" stroke-linecap="round"/>
+        <line x1="140" y1="56" x2="106" y2="70" stroke="#CC1A6D" stroke-width="3.5" stroke-linecap="round"/>
+        <line x1="140" y1="56" x2="178" y2="48" stroke="#CC1A6D" stroke-width="3.5" stroke-linecap="round"/>
+        <line x1="140" y1="85" x2="124" y2="126" stroke="#CC1A6D" stroke-width="3.5" stroke-linecap="round"/>
+        <line x1="140" y1="85" x2="156" y2="126" stroke="#CC1A6D" stroke-width="3.5" stroke-linecap="round"/>
+        <ellipse cx="190" cy="38" rx="18" ry="22" fill="none" stroke="#CC1A6D" stroke-width="2.5"/>
+        <line x1="181" y1="38" x2="199" y2="38" stroke="#CC1A6D" stroke-width="1.2" opacity=".5"/>
+        <line x1="186" y1="22" x2="186" y2="54" stroke="#CC1A6D" stroke-width="1.2" opacity=".5"/>
+        <line x1="190" y1="21" x2="190" y2="55" stroke="#CC1A6D" stroke-width="1.2" opacity=".5"/>
+        <line x1="194" y1="22" x2="194" y2="54" stroke="#CC1A6D" stroke-width="1.2" opacity=".5"/>
+        <line x1="180" y1="32" x2="200" y2="32" stroke="#CC1A6D" stroke-width="1.2" opacity=".5"/>
+        <line x1="180" y1="44" x2="200" y2="44" stroke="#CC1A6D" stroke-width="1.2" opacity=".5"/>
+        <line x1="180" y1="50" x2="190" y2="60" stroke="#CC1A6D" stroke-width="2.5"/>
+        <circle cx="68" cy="88" r="9" fill="#FFD700" stroke="#E5A900" stroke-width="1.5"/>
+        <text x="140" y="155" text-anchor="middle" font-size="11" fill="#3B3F5C" font-family="Space Grotesk,sans-serif">Tênis · Cardio Natural + Coordenação</text>
+      </svg>
+    </div>
+    <ul class="exlist">
+      <li><div class="edot" style="background:var(--mag)"></div>Tênis 8h com a turma · cardio + coordenação + agilidade lateral</li>
+      <li><div class="edot" style="background:var(--mag)"></div>Pré-aula (1h antes): banana + 1 col. pasta de amendoim · energia sustentada</li>
+      <li><div class="edot" style="background:var(--mag)"></div>Durante: 500ml de água a cada 30 min · não espere ter sede</li>
+      <li><div class="edot" style="background:var(--mag)"></div>Pós-aula (até 30 min): whey ou iogurte grego · janela anabólica</li>
+      <li><div class="edot" style="background:var(--mag)"></div>Alongamento 5 min: panturrilha, ísquio, ombros</li>
+    </ul>
+    <div class="div"></div>
+    <div style="font-size:11px;color:var(--slate)">🐾 <strong>Pippo manhã:</strong> 7h antes do tênis · <strong>Pippo noite:</strong> 19h</div>
+  </div></div>
+
+  <!-- QUA -->
+  <div class="acc"><button class="acc-h" onclick="tog('ex-q')">⚡ Quarta · Cardio + HIIT · Academia · 45 min <span class="chev" id="c-ex-q">▼</span></button>
+  <div class="acc-b" id="ex-q">
+    <div class="ex-svg-wrap">
+      <svg viewBox="0 0 280 160" xmlns="http://www.w3.org/2000/svg">
+        <rect width="280" height="160" rx="8" fill="#EEF2FF"/>
+        <rect x="55" y="88" width="170" height="7" rx="3.5" fill="#C8CFF5"/>
+        <rect x="62" y="54" width="156" height="34" rx="5" fill="#E8E9FF" stroke="#1B2FC2" stroke-width="1.5"/>
+        <circle cx="140" cy="35" r="12" fill="#1B2FC2"/>
+        <line x1="140" y1="47" x2="140" y2="76" stroke="#1B2FC2" stroke-width="3" stroke-linecap="round"/>
+        <line x1="140" y1="57" x2="120" y2="68" stroke="#1B2FC2" stroke-width="3" stroke-linecap="round"/>
+        <line x1="140" y1="57" x2="160" y2="50" stroke="#1B2FC2" stroke-width="3" stroke-linecap="round"/>
+        <line x1="140" y1="76" x2="128" y2="95" stroke="#1B2FC2" stroke-width="3" stroke-linecap="round"/>
+        <line x1="140" y1="76" x2="152" y2="90" stroke="#1B2FC2" stroke-width="3" stroke-linecap="round"/>
+        <line x1="85" y1="44" x2="68" y2="44" stroke="#CC1A6D" stroke-width="2" stroke-dasharray="4 2"/>
+        <line x1="88" y1="52" x2="74" y2="52" stroke="#CC1A6D" stroke-width="2" stroke-dasharray="4 2"/>
+        <text x="140" y="138" text-anchor="middle" font-size="11" fill="#3B3F5C" font-family="Space Grotesk,sans-serif">HIIT na Esteira</text>
+        <text x="140" y="153" text-anchor="middle" font-size="10" fill="#3B3F5C" font-family="Space Grotesk,sans-serif">8 rounds · 1min esforço + 1min recuperação</text>
+      </svg>
+    </div>
+    <ul class="exlist">
+      <li><div class="edot"></div>Elíptico Zona 2: 15 min · consegue conversar = intensidade certa</li>
+      <li><div class="edot"></div>HIIT esteira: 8 rounds × 1min esforço (7-8/10) + 1min recuperação (4/10)</li>
+      <li><div class="edot"></div>Bicicleta ergométrica: 10 min moderado · desacelera o coração</li>
+      <li><div class="edot"></div>Prancha lateral: 2×20s cada lado · estabiliza quadril e oblíquo</li>
+      <li><div class="edot"></div>Alongamento: 5 min · glúteos, flexores de quadril</li>
+    </ul>
+    <div class="div"></div>
+    <div style="font-size:11px;color:var(--slate)">🐾 <strong>Pippo manhã:</strong> 7h30 · <strong>Pippo tarde:</strong> 18h</div>
+  </div></div>
+
+  <!-- QUI -->
+  <div class="acc"><button class="acc-h" onclick="tog('ex-u')">🏋️ Quinta · Membros Superiores + Mobilidade · 45 min <span class="chev" id="c-ex-u">▼</span></button>
+  <div class="acc-b" id="ex-u">
+    <div class="ex-svg-wrap">
+      <svg viewBox="0 0 280 160" xmlns="http://www.w3.org/2000/svg">
+        <rect width="280" height="160" rx="8" fill="#EEF2FF"/>
+        <circle cx="140" cy="42" r="13" fill="#1B2FC2"/>
+        <line x1="140" y1="55" x2="140" y2="96" stroke="#1B2FC2" stroke-width="3.5" stroke-linecap="round"/>
+        <line x1="140" y1="68" x2="98" y2="50" stroke="#1B2FC2" stroke-width="3.5" stroke-linecap="round"/>
+        <line x1="140" y1="68" x2="182" y2="50" stroke="#1B2FC2" stroke-width="3.5" stroke-linecap="round"/>
+        <rect x="76" y="43" width="24" height="9" rx="2.5" fill="#CC1A6D"/>
+        <rect x="74" y="38" width="7" height="19" rx="2.5" fill="#CC1A6D"/>
+        <rect x="93" y="38" width="7" height="19" rx="2.5" fill="#CC1A6D"/>
+        <rect x="180" y="43" width="24" height="9" rx="2.5" fill="#CC1A6D"/>
+        <rect x="178" y="38" width="7" height="19" rx="2.5" fill="#CC1A6D"/>
+        <rect x="197" y="38" width="7" height="19" rx="2.5" fill="#CC1A6D"/>
+        <line x1="140" y1="96" x2="126" y2="133" stroke="#1B2FC2" stroke-width="3.5" stroke-linecap="round"/>
+        <line x1="140" y1="96" x2="154" y2="133" stroke="#1B2FC2" stroke-width="3.5" stroke-linecap="round"/>
+        <text x="140" y="152" text-anchor="middle" font-size="11" fill="#3B3F5C" font-family="Space Grotesk,sans-serif">Desenvolvimento com Halteres</text>
+      </svg>
+    </div>
+    <ul class="exlist">
+      <li><div class="edot"></div>Aquecimento: elíptico 8 min leve + rotação de ombros</li>
+      <li><div class="edot"></div>Supino inclinado com halteres: 3×12 · 45°, escápulas retraídas</li>
+      <li><div class="edot"></div>Puxada alta no cabo: 3×12 · puxe até o peito, cotovelos para baixo</li>
+      <li><div class="edot"></div>Tríceps na corda: 3×15 · cotovelo fixo, extensão total</li>
+      <li><div class="edot"></div>Desenvolvimento com halteres: 3×12 · não trave os cotovelos no topo</li>
+      <li><div class="edot"></div>Yoga/mobilidade: 10 min · YouTube "mobilidade ombros"</li>
+      <li><div class="edot"></div>Alongamento cervical + ombros: 5 min</li>
+    </ul>
+    <div class="div"></div>
+    <div style="font-size:11px;color:var(--slate)">🐾 <strong>Pippo manhã:</strong> 7h30 · <strong>Pippo tarde:</strong> 18h</div>
+  </div></div>
+
+  <!-- SEX -->
+  <div class="acc"><button class="acc-h" onclick="tog('ex-x')" style="border-color:var(--mag)">🎾 Sexta · Tênis 8h · Aula regular <span class="chev" id="c-ex-x">▼</span></button>
+  <div class="acc-b" id="ex-x" style="border-color:var(--mag)">
+    <ul class="exlist">
+      <li><div class="edot" style="background:var(--mag)"></div>Tênis 8h · foco em técnica + resistência</li>
+      <li><div class="edot" style="background:var(--mag)"></div>Mesmo protocolo da terça: banana + pasta de amendoim 1h antes</li>
+      <li><div class="edot" style="background:var(--mag)"></div>Alongamento especial pós-aula: 5 min ombros e lombar</li>
+    </ul>
+    <div class="div"></div>
+    <div style="font-size:11px;color:var(--slate)">🐾 <strong>Pippo manhã:</strong> 7h · <strong>Pippo noite:</strong> 19h</div>
+  </div></div>
+
+  <!-- SAB -->
+  <div class="acc"><button class="acc-h" onclick="tog('ex-b')" style="border-color:var(--mist)">🚶 Sábado · Descanso ativo <span class="chev" id="c-ex-b">▼</span></button>
+  <div class="acc-b" id="ex-b">
+    <ul class="exlist">
+      <li><div class="edot" style="background:var(--mist)"></div>Caminhada com Pippo estendida: 45 min no parque</li>
+      <li><div class="edot" style="background:var(--mist)"></div>Stretching em casa: 15 min · YouTube "alongamento completo"</li>
+      <li><div class="edot" style="background:var(--mist)"></div>Hidratação reforçada + sono de qualidade à noite</li>
+    </ul>
+  </div></div>
+
+  <!-- DOM -->
+  <div class="acc"><button class="acc-h" onclick="tog('ex-d')" style="border-color:var(--mist)">🧘 Domingo · Descanso + Planejamento <span class="chev" id="c-ex-d">▼</span></button>
+  <div class="acc-b" id="ex-d">
+    <ul class="exlist">
+      <li><div class="edot" style="background:var(--mist)"></div>Caminhada com Pippo: 45 min relaxante ao amanhecer</li>
+      <li><div class="edot" style="background:var(--mist)"></div>Meditação ou yoga suave: 10 min</li>
+      <li><div class="edot" style="background:var(--mist)"></div>12h: revisar plano da semana + lista de compras + prep de marmitas</li>
+    </ul>
+  </div></div>
+</div>
+
+<!-- ═══════════ HÁBITOS ═══════════ -->
+<div class="pane" id="pane-habitos">
+  <div class="srow">
+    <div class="sc"><div class="sv" id="sc-s">0%</div><div class="sl">semana</div></div>
+    <div class="sc pink"><div class="sv" id="sc-h">0/12</div><div class="sl">hoje</div></div>
+    <div class="sc green"><div class="sv" id="sc-f">0🔥</div><div class="sl">seguidos</div></div>
+  </div>
+  <div class="card">
+    <div class="hscroll"><div class="hgrid" id="hgrid">
+      <div class="hgh" style="background:transparent;color:var(--slate)">Hábito</div>
+      <div class="hgh">Seg</div><div class="hgh">Ter</div><div class="hgh">Qua</div>
+      <div class="hgh">Qui</div><div class="hgh">Sex</div><div class="hgh">Sáb</div><div class="hgh">Dom</div>
+    </div></div>
+    <div style="margin-top:9px;font-size:10px;color:var(--slate)">💾 Salvo automaticamente · deslize para ver todos os dias</div>
+  </div>
+  <div class="card">
+    <div class="card-title" style="font-size:13px">📝 Notas da Semana</div>
+    <textarea class="ntxt" id="wnotes" placeholder="Como foi sua semana? O que funcionou? O que foi difícil?" oninput="saveNotes()"></textarea>
+  </div>
+  <div class="card">
+    <div class="card-title" style="font-size:13px">➕ Adicionar hábito</div>
+    <div style="display:flex;gap:7px">
+      <input class="txt-input" type="text" id="new-h" placeholder="Ex: Meditar 10 min ✨" style="flex:1">
+      <button class="btn btn-p" onclick="addHabit()">Add</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ MEDIDAS ═══════════ -->
+<div class="pane" id="pane-medidas">
+  <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:14px">
+    <div class="sc"><div class="sv">68<span style="font-size:12px">kg</span></div><div class="sl">início</div></div>
+    <div class="sc pink"><div class="sv">62<span style="font-size:12px">kg</span></div><div class="sl">meta</div></div>
+  </div>
+  <div class="card">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+      <span style="font-size:12px;font-weight:600">Progresso: 68 → 62 kg</span>
+      <span class="pill pb" id="prog-pct">0%</span>
+    </div>
+    <div class="pb-wrap"><div class="pb-fill" id="prog-fill" style="width:0%"></div></div>
+    <div style="display:flex;justify-content:space-between;font-size:9px;color:var(--slate);margin-top:3px"><span>68 kg</span><span>62 kg 🎯</span></div>
+  </div>
+  <div class="card">
+    <div class="card-title" style="font-size:13px">📝 Nova medição</div>
+    <div style="margin-bottom:10px">
+      <label style="font-size:9px;font-weight:700;color:var(--slate);text-transform:uppercase;letter-spacing:.4px;display:block;margin-bottom:4px">Data</label>
+      <input type="date" id="mdate" class="txt-input" style="width:auto">
+    </div>
+    <div class="mgrid">
+      <div class="mic"><label>⚖️ Peso</label><input type="number" class="mi" id="m-p" placeholder="68" step="0.1"><div class="mu">kg</div></div>
+      <div class="mic"><label>📊 % Gordura</label><input type="number" class="mi" id="m-g" placeholder="36" step="0.1"><div class="mu">%</div></div>
+      <div class="mic"><label>🩹 Cintura</label><input type="number" class="mi" id="m-c" placeholder="75" step="0.5"><div class="mu">cm</div></div>
+      <div class="mic"><label>🦵 Quadril</label><input type="number" class="mi" id="m-q" placeholder="100" step="0.5"><div class="mu">cm</div></div>
+      <div class="mic"><label>🫀 Abdômen</label><input type="number" class="mi" id="m-a" placeholder="85" step="0.5"><div class="mu">cm</div></div>
+      <div class="mic"><label>💪 Braço D</label><input type="number" class="mi" id="m-bd" placeholder="30" step="0.5"><div class="mu">cm</div></div>
+      <div class="mic"><label>💪 Braço E</label><input type="number" class="mi" id="m-be" placeholder="30" step="0.5"><div class="mu">cm</div></div>
+      <div class="mic"><label>🦵 Coxa D</label><input type="number" class="mi" id="m-cd" placeholder="55" step="0.5"><div class="mu">cm</div></div>
+      <div class="mic"><label>🦵 Coxa E</label><input type="number" class="mi" id="m-ce" placeholder="55" step="0.5"><div class="mu">cm</div></div>
+      <div class="mic"><label>🔵 Panturrilha</label><input type="number" class="mi" id="m-pt" placeholder="35" step="0.5"><div class="mu">cm</div></div>
+    </div>
+    <div class="btn-row" style="margin-top:12px">
+      <button class="btn btn-p" onclick="saveMeas()">💾 Salvar</button>
+      <button class="btn btn-g" onclick="clearMeas()">🗑️ Limpar</button>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title" style="font-size:13px">📊 Histórico</div>
+    <div class="tscroll">
+      <table class="htab">
+        <thead><tr><th>Data</th><th>Peso</th><th>Gord%</th><th>Cintura</th><th>Quadril</th><th>Abdômen</th><th>Coxa D</th><th>Braço D</th><th></th></tr></thead>
+        <tbody id="meas-body"><tr><td colspan="9" style="text-align:center;padding:16px;color:var(--slate)">Nenhuma medida ainda 💪</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ COMPRAS ═══════════ -->
+<div class="pane" id="pane-compras">
+  <div class="banner" style="background:linear-gradient(135deg,var(--royal),var(--mag))">
+    <div class="bi">🛒</div>
+    <div><div class="bt">Lista da Semana</div>
+    <div class="bb">Marque conforme coloca no carrinho · Compre todo domingo</div></div>
+  </div>
+  <div class="btn-row" style="margin-bottom:14px">
+    <button class="btn btn-g btn-sm" onclick="uncheckAll()">🔄 Reiniciar</button>
+    <button class="btn btn-g btn-sm" onclick="copyList()">📋 Copiar lista</button>
+  </div>
+  <div id="shop-content"></div>
+</div>
+
+<!-- ═══════════ RECEITAS ═══════════ -->
+<div class="pane" id="pane-receitas">
+  <div class="sect-title">👨‍🍳 Receitas <span style="font-size:11px;font-weight:400;color:var(--slate)">estilo Betto Auge</span></div>
+  <div class="filter-row" id="filter-row"></div>
+  <div class="rgrid" id="rgrid"></div>
+</div>
+
+<!-- ═══════════ DICAS ═══════════ -->
+<div class="pane" id="pane-dicas">
+  <!-- Best foods -->
+  <div class="card">
+    <div class="card-title">🏆 Melhores Alimentos</div>
+    <p style="font-size:11px;color:var(--slate);margin-bottom:12px">Campeões para perda de gordura, glicose estável, lipedema e melasma. ⭐ = top escolha.</p>
+    <div class="bgrid" id="bgrid"></div>
+  </div>
+  <!-- Glucose -->
+  <div class="card">
+    <div class="card-title">🩸 Método Glucose Goddess</div>
+    <div class="gsteps" id="gsteps"></div>
+  </div>
+  <!-- Anti-sabotage -->
+  <div class="card">
+    <div class="card-title">🧠 Anti-Sabotagem</div>
+    <div id="tips-content"></div>
+  </div>
+  <!-- Lipedema & Melasma -->
+  <div class="card">
+    <div class="card-title">💜 Lipedema & Melasma</div>
+    <div id="lipo-content"></div>
+  </div>
+  <!-- SOS -->
+  <div class="sos">
+    <div class="sos-title">🆘 Saiu da Dieta? Respira.</div>
+    <div class="sos-body">
+      <strong>1.</strong> Um deslize não desfaz semanas. Chega de culpa.<br>
+      <strong>2.</strong> Beba 500ml de água agora.<br>
+      <strong>3.</strong> Próxima refeição: volte ao plano, sem compensar.<br>
+      <strong>4.</strong> Caminhada 20 min com Pippo 🐾 (baixa cortisol + glicose).<br>
+      <strong>5.</strong> Escreva nas notas o que aconteceu + estratégia.<br><br>
+      <em>80% de consistência já transforma o corpo. 💙</em>
+    </div>
+  </div>
+</div>
+
+</div><!-- /app -->
+
+<!-- RECIPE MODAL -->
+<div class="modal-ov" id="rmodal" onclick="closeMod(event)">
+  <div class="modal" id="rmodal-inner">
+    <div class="modal-head">
+      <div style="font-size:15px;font-weight:700" id="mod-title">Receita</div>
+      <button class="mcl" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body" id="mod-body"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ═══════════════════════════════════════
+// PASSWORD (change here to update)
+// ═══════════════════════════════════════
+const SENHA = 'pippo2025';
+const SK    = 'mps-v4';
+const DAYS  = ['Seg','Ter','Qua','Qui','Sex','Sáb','Dom'];
+
+// ── AUTH ────────────────────────────────
+function tryLogin(){
+  const v = document.getElementById('pwd-input').value;
+  if(v === SENHA){
+    sessionStorage.setItem('auth','1');
+    document.getElementById('lock').style.display='none';
+    document.getElementById('app').style.display='block';
+    initApp();
+  } else {
+    const err = document.getElementById('pwd-err');
+    err.textContent='Senha incorreta. Tente novamente.';
+    document.getElementById('pwd-input').value='';
+    document.getElementById('pwd-input').focus();
+    setTimeout(()=>err.textContent='',3000);
+  }
+}
+function logout(){
+  sessionStorage.removeItem('auth');
+  location.reload();
+}
+// auto-login if session active
+if(sessionStorage.getItem('auth')==='1'){
+  document.getElementById('lock').style.display='none';
+  document.getElementById('app').style.display='block';
+}
+
+// ── UTILS ───────────────────────────────
+function ls(){try{return JSON.parse(localStorage.getItem(SK))||{};}catch{return{};}}
+function ss(s){localStorage.setItem(SK,JSON.stringify(s));}
+function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500);}
+function sw(id){
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.pane').forEach(p=>p.classList.remove('active'));
+  document.getElementById('tab-'+id).classList.add('active');
+  document.getElementById('pane-'+id).classList.add('active');
+  window.scrollTo(0,0);
+}
+function tog(id){
+  const b=document.getElementById(id),h=b.previousElementSibling,c=document.getElementById('c-'+id);
+  const o=b.classList.contains('open');
+  b.classList.toggle('open',!o);if(c)c.classList.toggle('open',!o);if(h)h.classList.toggle('open',!o);
+}
+function scrollToDay(id){const el=document.getElementById(id);if(el)el.scrollIntoView({behavior:'smooth',block:'start'});}
+function getWeekLabel(){
+  const now=new Date(),d=now.getDay();
+  const mon=new Date(now);mon.setDate(now.getDate()-(d===0?6:d-1));
+  const sun=new Date(mon);sun.setDate(mon.getDate()+6);
+  const m=['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'];
+  const f=dt=>dt.getDate().toString().padStart(2,'0')+' '+m[dt.getMonth()];
+  return f(mon)+' – '+f(sun);
+}
+function getWeekKey(){
+  const now=new Date(),d=now.getDay();
+  const mon=new Date(now);mon.setDate(now.getDate()-(d===0?6:d-1));
+  return mon.toISOString().split('T')[0];
+}
+
+// ═══════════════════════════════════════
+// MENU DATA — SEMANA 1
+// (toda semana Cole aqui o novo JSON gerado)
+// ═══════════════════════════════════════
+const MENU = {
+  seg:{
+    label:'Segunda-feira',emoji:'💪',pills:['💪 Força + Core','🐾 Pippo 2×'],
+    note:null,
+    cafe:['Omelete de 2 ovos com espinafre, tomate cereja e parmesão ralado + 1 fatia de pão integral com abacate amassado e limão','Panqueca proteica: 1 banana madura amassada + 2 ovos + 1 col. aveia + canela — cobrir com pasta de amendoim natural','Bowl iogurte grego natural + 1 col. chia + morangos fatiados + 1 punhado de amêndoas laminadas'],
+    almoco:['Frango grelhado ao limão siciliano 150g + arroz integral 3 col. + brócolis no vapor + cenoura roxa refogada + abobrinha grelhada com alho','Filé de tilápia assado com ervas finas 150g + lentilha cozida 4 col. + vagem salteada no azeite + pimentão vermelho e amarelo assado','Patinho moído refogado com cebola e tomilho 130g + batata-doce assada 150g + couve-manteiga refogada + tomatinhos confit'],
+    lanche:['Maçã verde fatiada + 1 col. pasta de amendoim natural + chá de hibisco gelado','2 ovos cozidos + palitos de cenoura e aipo + mostarda dijon','2 fatias pão integral + ricota temperada com azeite e orégano + tomate cereja'],
+    jantar:['Sopa de mandioquinha com frango desfiado + cenoura em cubos + aipo + caldo caseiro s/ batata inglesa','Salmão grelhado 130g + salada de folhas mistas + pepino + cenoura roxa + 2 col. quinoa + azeite e limão siciliano','Frittata de forno: 3 ovos + espinafre + pimentão + cebola roxa + queijo minas frescal']
+  },
+  ter:{
+    label:'Terça-feira',emoji:'🎾',pills:['🎾 Tênis 8h','🐾 Pippo 2×'],
+    note:'🎾 Dia de tênis! Banana + pasta de amendoim 1h antes. Whey ou iogurte grego pós-aula (30 min).',
+    cafe:['Tapioca de 2 col. com ovo mexido + cottage + tomate + rúcula + café sem açúcar','Smoothie pré-treino: leite de amêndoas + banana + 1 col. whey baunilha + 1 col. linhaça dourada','Torrada integral + ovo pochê + abacate com limão e pimenta + chá verde sem açúcar'],
+    almoco:['Frango assado com cúrcuma e alecrim 150g + arroz integral 3 col. + ervilha torta salteada + cenoura + brócolis no vapor','Atum em lata (na água) + salada niçoise: vagem cozida + ovo cozido + tomate + azeitona preta + batata-doce pequena cozida','Coxinha da asa sem pele assada + purê de batata-doce com gengibre + aspargos grelhados + tomatinhos ao forno'],
+    lanche:['Iogurte grego natural + 1 col. mel de abelha nativa + 30g amêndoas tostadas','Mix frutas secas: 3 tâmaras + 2 damascos + 30g castanha-do-pará','Wrap integral com peito de peru, alface americana, tomate e mostarda dijon s/ maionese'],
+    jantar:['Peixe assado com limão e ervas (badejo ou merluza) 150g + purê de couve-flor + vagem refogada + tomate','Hambúrguer de frango caseiro + alface, tomate, cebola roxa + pão integral + batata-doce em palito assada','Omelete grande: 3 ovos + espinafre + queijo minas frescal + tomate cereja · salada de rúcula ao lado']
+  },
+  qua:{
+    label:'Quarta-feira',emoji:'🫐',pills:['⚡ Cardio + HIIT','🐾 Pippo 2×'],
+    note:'🫐 Dia antioxidante — priorize frutas vermelhas, brócolis, cenoura roxa e beterraba hoje!',
+    cafe:['Bowl roxo: iogurte grego + mirtilo + amora + 1 col. chia + 20g granola s/ açúcar + coco seco em lascas','Tapioca com pasta de amendoim + banana em rodelas + canela + café sem açúcar','Vitamina antioxidante: leite de amêndoas + açaí s/ adição + 1 col. whey + chia + morango'],
+    almoco:['Salmão grelhado 150g + arroz 7 grãos 3 col. + brócolis + couve-de-bruxelas grelhada + beterraba ralada com azeite','Frango ao açafrão 150g + quinoa 3 col. + abobrinha grelhada + pimentão laranja + espinafre refogado com alho','Atum fresco grelhado 150g + lentilha com gengibre + couve refogada + cenoura roxa + rúcula + limão siciliano'],
+    lanche:['Mix frutas vermelhas: morango + mirtilo + framboesa + 30g castanhas + chá de hibisco','Maçã verde + 30g amêndoas + 1 quadrado de chocolate 70% cacau','Cenoura e pepino + húmus de beterraba caseiro + 2 ovos de codorna cozidos'],
+    jantar:['Caldo verde fit: couve-manteiga + chouriço de frango + batata-doce + cebola + alho s/ batata inglesa','Frango desfiado + salada de quinoa + rúcula + tomate seco + nozes + vinagrete de limão','Peixe ao forno com crosta de castanha-do-pará e ervas + aspargos grelhados + salada de beterraba com hortelã']
+  },
+  qui:{
+    label:'Quinta-feira',emoji:'🌿',pills:['🏋️ Membros Sup.','🐾 Pippo 2×'],
+    note:'🌿 Dia anti-inflamatório — use cúrcuma + pimenta-preta em toda refeição possível hoje!',
+    cafe:['Golden milk smoothie: leite de amêndoas + cúrcuma + canela + gengibre + pitada pimenta-preta + banana + 1 col. whey','Ovo pochê sobre espinafre refogado no alho + 1 fatia pão integral + chá verde com gengibre s/ açúcar','Crepioca: 2 ovos + 2 col. tapioca + cottage + espinafre + tomate cereja'],
+    almoco:['Frango com cúrcuma e pimenta-preta assado 150g + arroz integral + vagem + cenoura + cebola roxa + pimentão assado','Salmão com crosta de gengibre 150g + batata-doce 150g + brócolis + couve refogada + azeite e limão siciliano','Patinho ao curry light 130g + quinoa + abobrinha + pimentão vermelho + espinafre + tomate em cubos'],
+    lanche:['Chá anti-inflamatório: gengibre + cúrcuma + limão + mel + água quente + 30g amêndoas + 1 tâmara','Palitos de cenoura e aipo + pasta de grão-de-bico com tahini e limão + 1 punhado de nozes','1 pêra + pistache 30g + 1 quadrado chocolate 85% cacau'],
+    jantar:['Sopa anti-inflamatória: frango + cúrcuma + gengibre + cenoura + aipo + espinafre + caldo caseiro','Tilápia grelhada com ervas 150g + salada de lentilha + tomate + pepino + salsinha + limão','Frittata de forno com frango + cúrcuma + espinafre + cenoura ralada + queijo minas + salada verde']
+  },
+  sex:{
+    label:'Sexta-feira',emoji:'🎾',pills:['🎾 Tênis 8h','🐾 Pippo 2×'],
+    note:'✨ Final de semana chegando! Mantenha o padrão e recarregue com pratos coloridos e gostosos.',
+    cafe:['Açaí bowl s/ adição: polpa + 1 col. whey + leite de amêndoas · toping: granola, morango, banana fatiada, linhaça','Omelete de claras (3 claras + 1 ovo) + cottage + tomate + manjericão fresco + pão integral','Panqueca de aveia: ½ xíc. aveia + 2 ovos + banana + canela · cobertura de morango picado com limão'],
+    almoco:['Frango defumado sem pele + arroz integral + feijão-verde cozido + tomate + cenoura + abobrinha + pimentão vermelho','Pescada grelhada com ervas 150g + batata-doce assada + brócolis + couve-flor no vapor + ervilha torta + azeite','Bife de patinho grelhado 130g + mandioca cozida 100g + couve refogada no alho + cenoura assada + tomate'],
+    lanche:['Mix power: 10 castanhas-do-pará + 10 amêndoas + 5 nozes + 1 tâmara + 1 fruta da estação','Vitamina de abacate: ½ abacate + leite de amêndoas + cacau em pó + stevia + gelo','Torrada integral + pasta de amendoim + banana em rodelas + canela em pó'],
+    jantar:['Ceviche fit de tilápia: peixe cozido no limão + cebola roxa + coentro + pimenta + milho + batata-doce em cubos','Frango com molho de ervas (alecrim + tomilho + sálvia) + quinoa + salada grande com pepino + cenoura roxa','Sopa de tomate assado com frango desfiado + manjericão + azeite + 1 fatia pão integral tostado']
+  },
+  sab:{
+    label:'Sábado',emoji:'😌',pills:['😌 Descanso ativo','🐾 Pippo 45min'],
+    note:'💆 Sábado flexível — mantenha a estrutura, mas permita-se uma refeição especial se quiser!',
+    cafe:['Brunch fit: ovo pochê + peito de peru + abacate + tomate + pão integral tostado + chá verde','Panquecas de aveia com whey: aveia + 2 ovos + leite de amêndoas · cobrir com mel de abelha nativa + frutas frescas','Açaí tigela natural + granola s/ açúcar + banana + morango + pasta de amendoim'],
+    almoco:['Cozido fit: frango + batata-doce + cenoura + mandioca cozida + chuchu + couve + caldo caseiro temperado','Peixe assado inteiro com limão + ervas + legumes ao forno: tomate + pimentão + cebola + abobrinha + berinjela','⭐ Refeição especial controlada — fibras primeiro! Proteína + muita salada + carbo moderado'],
+    lanche:['Sorvete fit: banana congelada batida + pasta de amendoim + cacau em pó — s/ geladeira artificial','Bolinho de banana e aveia: 2 bananas + 1 xíc. aveia + 2 col. pasta amendoim · assar 15 min 180°C','Queijo minas frescal + goiabada diet 30g + 1 punhado de nozes — clássico adaptado'],
+    jantar:['Fondue light: caldo de frango + legumes: cenoura, brócolis, couve-flor, abobrinha, chuchu + frango em cubos','Pizza integral caseira: base integral + molho de tomate s/ açúcar + mussarela + frango + pimentão + rúcula pós-forno','Churrasco fit: frango + filé de peixe + pimentão colorido + cebola + milho verde + salada verde grande']
+  },
+  dom:{
+    label:'Domingo',emoji:'🔄',pills:['🔄 Planejamento','🐾 Pippo 45min'],
+    note:'🛒 Domingo: faça a lista de compras, vá ao mercado e prepare marmitas da semana!',
+    cafe:['Café especial: ovo mexido cremoso com ricota + pão integral torrado + abacate + suco verde de couve','Smoothie dominical: leite de amêndoas + banana + espinafre + maçã verde + gengibre + chia + 1 col. whey','Tapioca recheada com queijo minas frescal + ovos mexidos + tomate + manjericão fresco'],
+    almoco:['Frango assado com ervas + arroz integral + feijão carioca + couve refogada no alho + farofa de linhaça dourada','Peixe assado inteiro com alho e limão + batata-doce assada + brócolis + couve-de-bruxelas + cenoura','Moqueca light de tilápia: leite de coco light + 2 gotas dendê + tomate + pimentão + coentro + arroz integral'],
+    lanche:['Bolinho de banana e aveia: 2 bananas + 1 xíc. aveia + 2 col. pasta amendoim · assar 15 min 180°C','Vitamina verde: couve + maçã verde + gengibre + limão + água de coco + chia','Fruta da estação (manga, maracujá, abacaxi) + iogurte grego + 1 fio mel + granola s/ açúcar'],
+    jantar:['Sopa de abóbora: abóbora + frango + cúrcuma + gengibre + leite de coco light + coentro — cremosa e reconfortante','Salada completa de domingo: folhas variadas + atum + ovo cozido + tomate + cenoura + pepino + quinoa + azeite','Wrap de alface: folha de alface grande + frango desfiado + abacate + tomate + cebola roxa + limão — zero carbo']
+  }
+};
+
+// ═══════════════════════════════════════
+// SHOPPING LIST
+// ═══════════════════════════════════════
+const SHOP = {
+  '🥩 Proteínas':[
+    ['Peito de frango sem pele','1 kg'],['Filé de tilápia ou salmão','500 g'],
+    ['Patinho moído magro','300 g'],['Atum em lata na água','4 latas 170g'],
+    ['Ovos caipira','18 un.'],['Iogurte grego natural s/ açúcar','2 potes 500g'],
+    ['Queijo minas frescal','200 g'],['Cottage','200 g'],['Peito de peru fatiado','100 g'],
+    ['Whey protein (baunilha ou neutro)','se acabou'],
+  ],
+  '🥦 Vegetais':[
+    ['Espinafre fresco','2 maços'],['Rúcula','1 maço'],['Brócolis','1 unid. grande'],
+    ['Couve-manteiga','1 maço'],['Abobrinha','3 unid.'],['Cenoura','500 g'],
+    ['Cenoura roxa','2 unid.'],['Pimentão vermelho, amarelo e laranja','1 de cada'],
+    ['Vagem','200 g'],['Aspargos','1 maço'],['Couve-de-bruxelas','200 g'],
+    ['Aipo (salsão)','1 talo'],['Beterraba','2 unid.'],['Cebola roxa e branca','1 kg'],
+    ['Alho','1 cabeça'],['Tomate cereja','2 caixinhas'],['Pepino japonês','3 unid.'],
+    ['Alface americana','1 cabeça'],['Abóbora','½ unid. pequena'],
+  ],
+  '🌾 Carboidratos integrais':[
+    ['Arroz integral','1 kg'],['Batata-doce','1 kg'],['Quinoa','400 g'],
+    ['Lentilha','500 g'],['Feijão carioca','500 g'],['Vagem (feijão-verde)','200 g'],
+    ['Pão integral (mín. 6g prot./fatia)','1 pacote'],['Aveia em flocos finos','500 g'],
+    ['Tapioca granulada','300 g'],['Grão-de-bico cozido','1 lata ou 300g seco'],
+    ['Granola s/ açúcar','200 g'],['Mandioca congelada','500 g'],
+  ],
+  '🫐 Frutas':[
+    ['Frutas vermelhas (morango, mirtilo, amora)','3 caixinhas'],
+    ['Banana (madura + verde)','2 cachos'],['Maçã verde','4 unid.'],
+    ['Abacate','3 unid.'],['Limão siciliano','6 unid.'],['Limão taiti','1 saco'],
+    ['Polpa de açaí s/ adição','6 sachês 100g'],['Pêra','3 unid.'],
+    ['Tâmaras s/ açúcar','100 g'],['Fruta da estação (manga / maracujá)','2 unid.'],
+  ],
+  '🥜 Gorduras boas':[
+    ['Amêndoas sem sal','200 g'],['Castanha-do-pará','100 g'],
+    ['Nozes','150 g'],['Pistache sem sal','100 g'],
+    ['Pasta de amendoim natural s/ açúcar','1 pote 400g'],
+    ['Chia','200 g'],['Linhaça dourada','200 g'],
+    ['Azeite extra virgem','se acabou'],['Leite de amêndoas s/ açúcar','2 caixinhas'],
+    ['Leite de coco light','1 lata'],['Tahini','1 pote'],
+    ['Chocolate 70-85% cacau','1 barra'],['Cacau em pó s/ açúcar','100 g'],
+  ],
+  '🧂 Temperos e funcionais':[
+    ['Cúrcuma em pó','100 g'],['Gengibre fresco','1 pedaço'],
+    ['Canela em pó','1 frasco'],['Alecrim fresco','1 maço'],
+    ['Pimenta-preta moída','1 frasco'],['Vinagre de maçã orgânico','1 frasco'],
+    ['Chá verde','1 caixinha'],['Chá de hibisco','1 caixinha'],
+    ['Mostarda dijon','1 pote'],['Mel de abelha nativa','1 frasco pequeno'],
+    ['Açafrão (opcional)','1 envelope'],
+  ],
+};
+
+// ═══════════════════════════════════════
+// RECIPES
+// ═══════════════════════════════════════
+const RECIPES = [
+  {id:'r1',title:'Omelete Perfeita',emoji:'🥚',cat:['cafe','proteica','rapida'],time:'10 min',cals:'~280 kcal',prot:'22g',diff:'Fácil',
+   ing:['2 ovos caipira','1 punhado espinafre','2 tomates cereja','1 col. queijo minas ralado','Sal, pimenta, orégano','1 fio azeite extra virgem'],
+   steps:['Bata os ovos com sal, pimenta e orégano até incorporar','Aqueça frigideira antiaderente em fogo médio com azeite','Despeje os ovos, incline para cobrir todo o fundo','Coloque espinafre e tomate na metade','Quando a borda firmar, dobre ao meio e sirva'],
+   tip:'Segredo: não mexa após colocar na frigideira! O vapor cozinha o topo.',tags:['sem glúten','proteica','low carb']},
+  {id:'r2',title:'Bowl Antioxidante de Açaí',emoji:'🫐',cat:['cafe','rapida'],time:'5 min',cals:'~320 kcal',prot:'18g',diff:'Fácil',
+   ing:['100g polpa açaí s/ adição','1 col. whey baunilha','100ml leite de amêndoas','20g granola s/ açúcar','1 banana fatiada','Morangos','1 col. chia'],
+   steps:['Bata açaí + whey + leite de amêndoas no liquidificador 30s','Consistência deve ser espessa, não líquida','Coloque na tigela e adicione os topings','Sirva imediatamente'],
+   tip:'Whey transforma o açaí em refeição proteica completa!',tags:['sem glúten','proteica','antioxidante']},
+  {id:'r3',title:'Panqueca de Banana e Aveia',emoji:'🥞',cat:['cafe','proteica','rapida'],time:'12 min',cals:'~290 kcal',prot:'16g',diff:'Fácil',
+   ing:['1 banana madura','2 ovos','3 col. aveia em flocos','1 pitada canela','1 col. chá fermento','Pasta de amendoim para cobrir'],
+   steps:['Amasse a banana com garfo até virar pasta','Adicione os ovos e misture bem','Acrescente aveia + canela + fermento','Aqueça frigideira antiaderente em fogo baixo','1 concha de massa por panqueca — tampe 2-3 min','Vire com cuidado · sirva com pasta de amendoim'],
+   tip:'Estilo Betto Auge: mesma tigela para tudo, menos louça!',tags:['sem glúten','proteica','pré-treino']},
+  {id:'r4',title:'Frango ao Limão Siciliano',emoji:'🍋',cat:['almoco','proteica'],time:'25 min',cals:'~350 kcal',prot:'38g',diff:'Fácil',
+   ing:['150g filé de frango','Suco de 1 limão siciliano','1 dente de alho','Alecrim fresco','Sal, pimenta, azeite','Abobrinha em rodelas','Tomate cereja','Pimentão amarelo em tiras'],
+   steps:['Marine o frango 15 min: limão + alho + alecrim + sal','Grelhe em fogo alto com azeite 5-6 min cada lado (não mexa!)','Na mesma frigideira, refogue abobrinha + pimentão + tomate 4 min','Sirva o frango sobre os legumes'],
+   tip:'Não mexa o frango! A crosta dourada só forma se deixar firmar.',tags:['sem glúten','proteica','low carb']},
+  {id:'r5',title:'Sopa Anti-inflamatória',emoji:'🍲',cat:['jantar'],time:'30 min',cals:'~240 kcal',prot:'28g',diff:'Fácil',
+   ing:['150g frango desfiado','1 col. chá cúrcuma','1 col. chá gengibre fresco ralado','1 cenoura grande em cubos','1 talo aipo','1 cebola','2 dentes alho','Espinafre fresco','Pimenta-preta (ativa cúrcuma 20×!)','Sal e coentro'],
+   steps:['Refogue cebola + alho no azeite 3 min','Adicione cúrcuma + gengibre + pimenta · 1 min para liberar aroma','Adicione cenoura + aipo + 600ml água quente','Cozinhe 15 min em fogo médio','Adicione frango + espinafre · 5 min','Finalize com coentro e suco de limão'],
+   tip:'Pimenta-preta + cúrcuma juntas: combo anti-inflamatório mais poderoso da cozinha!',tags:['sem glúten','proteica','anti-inflamatória']},
+  {id:'r6',title:'Ovo Cremoso Viral',emoji:'🥚',cat:['cafe','rapida','proteica'],time:'8 min',cals:'~220 kcal',prot:'18g',diff:'Fácil',
+   ing:['2 ovos cozidos (8 min exatos)','2 col. iogurte grego natural','1 fio azeite extra virgem','Sal e pimenta','Páprica defumada','Salsinha picada'],
+   steps:['Cozinhe os ovos exatamente 8 min — gema mole-dura','Descasque e corte ao meio','Retire a gema com colher','Amasse as gemas com iogurte + azeite + sal','Volte as gemas cremosas para as claras','Finalize com páprica + salsinha + fio de azeite'],
+   tip:'Receita viral do Betto Auge — simples, proteica e viciante!',tags:['proteica','low carb','sem glúten','rápida']},
+  {id:'r7',title:'Moqueca Light de Tilápia',emoji:'🐟',cat:['jantar','almoco'],time:'35 min',cals:'~320 kcal',prot:'34g',diff:'Médio',
+   ing:['200g filé de tilápia','200ml leite de coco light','2 gotas azeite de dendê','1 tomate em rodelas','1 pimentão vermelho em tiras','1 pimentão amarelo em tiras','Cebola, alho, coentro, sal','Suco de 1 limão'],
+   steps:['Marine o peixe 20 min: limão + sal + alho','Refogue cebola + alho + pimentões no azeite 5 min','Adicione o tomate · 3 min','Coloque o peixe por cima — não mexa!','Adicione leite de coco + gotas de dendê','Tampe e cozinhe 12 min em fogo baixo','Finalize com coentro'],
+   tip:'Não mexa o peixe! Ele cozinha no vapor do molho e fica perfeito.',tags:['sem glúten','proteica','anti-inflamatória']},
+  {id:'r8',title:'Húmus de Beterraba',emoji:'🥕',cat:['lanche','rapida'],time:'15 min',cals:'~180 kcal',prot:'8g',diff:'Fácil',
+   ing:['1 beterraba cozida','1 lata grão-de-bico escorrido','2 col. tahini','Suco de 1 limão','1 dente alho','Sal, cominho, azeite','Palitos cenoura e pepino para servir'],
+   steps:['Bata tudo no liquidificador: beterraba + grão-de-bico + tahini + limão + alho','Tempere com sal + cominho + azeite','Bata até cremoso e homogêneo','Sirva com palitos de cenoura e pepino','Conserva 5 dias na geladeira'],
+   tip:'Rico em nitratos (circulação) + antioxidantes — faz tudo no mesmo pote!',tags:['vegano','sem glúten','antioxidante','rápida']},
+  {id:'r9',title:'Golden Milk Smoothie',emoji:'✨',cat:['cafe','rapida'],time:'5 min',cals:'~260 kcal',prot:'20g',diff:'Fácil',
+   ing:['200ml leite de amêndoas','1 banana pequena','1 col. chá cúrcuma em pó','½ col. chá canela','Pitada pimenta-preta','Pitada gengibre em pó','1 col. whey (baunilha ou natural)','Gelo a gosto'],
+   steps:['Coloque tudo no liquidificador','Bata 30 segundos','Prove e ajuste canela/gengibre','Sirva imediatamente com gelo'],
+   tip:'A pimenta-preta aumenta absorção da cúrcuma em 2000%! Não pule.',tags:['anti-inflamatório','proteica','sem glúten']},
+  {id:'r10',title:'Wrap de Alface',emoji:'🥬',cat:['jantar','lanche','rapida'],time:'10 min',cals:'~280 kcal',prot:'30g',diff:'Fácil',
+   ing:['4 folhas grandes alface americana','150g frango grelhado desfiado','½ abacate fatiado','1 tomate em cubos','½ cebola roxa fatiada','Suco de limão + sal + pimenta','Páprica e coentro opcional'],
+   steps:['Grelhe o frango com sal + pimenta + páprica · desfie','Prepare abacate amassado com limão + sal','Lave e seque bem as folhas de alface','Monte: alface + abacate + frango + tomate + cebola','Regue com limão e feche como envelope'],
+   tip:'Substitui o pão completamente — zero carbo, máximo sabor!',tags:['low carb','sem glúten','proteica','rápida']},
+  {id:'r11',title:'Frittata de Forno',emoji:'🍳',cat:['jantar','cafe','proteica'],time:'25 min',cals:'~300 kcal',prot:'24g',diff:'Fácil',
+   ing:['4 ovos','50g queijo minas frescal','1 punhado espinafre','½ pimentão em cubos','½ cebola em cubos','1 tomate em rodelas','Sal, pimenta, orégano','Azeite para untar'],
+   steps:['Pré-aqueça o forno a 180°C','Refogue cebola + pimentão no azeite 5 min','Bata os ovos com queijo + sal + pimenta + orégano','Misture os legumes refogados + espinafre','Despeje em forma untada · tomate em rodelas por cima','Asse 15-18 min até firmar e dourar'],
+   tip:'Faz no domingo, come a semana toda! 1 porção = café completo.',tags:['proteica','sem glúten','meal prep']},
+  {id:'r12',title:'Bowl Pós-Tênis',emoji:'🥗',cat:['almoco','proteica'],time:'20 min',cals:'~380 kcal',prot:'35g',diff:'Fácil',
+   ing:['3 col. quinoa cozida','130g frango grelhado fatiado','Rúcula e alface americana','1 tomate em cubos','½ pepino em rodelas','Cenoura roxa ralada','Suco limão + azeite + sal','30g nozes picadas'],
+   steps:['Cozinhe quinoa: 1 parte + 2 partes água, 15 min fogo baixo','Grelhe o frango com sal, pimenta e limão','Monte o bowl: quinoa + saladas','Coloque o frango por cima','Finalize com nozes + vinagrete de limão'],
+   tip:'Aminoácidos completos da quinoa — perfeito para recuperação pós-tênis!',tags:['pós-treino','proteica','sem glúten']},
+];
+
+// ═══════════════════════════════════════
+// BEST FOODS
+// ═══════════════════════════════════════
+const BFOODS = [
+  {e:'🫐',n:'Mirtilo',w:'Campeão antioxidante: glicose + melasma',top:true},
+  {e:'🥑',n:'Abacate',w:'Gordura boa → estabiliza insulina + anti-infla',top:true},
+  {e:'🐟',n:'Salmão',w:'Ômega-3: lipedema + melasma + inflamação',top:true},
+  {e:'🌿',n:'Cúrcuma+Pimenta',w:'Combo anti-inflamatório mais poderoso',top:true},
+  {e:'🍒',n:'Acerola',w:'80× mais vitamina C que laranja → melasma',top:true},
+  {e:'🥚',n:'Ovos caipira',w:'Proteína completa + colina para hormônios'},
+  {e:'🍋',n:'Limão siciliano',w:'Vitamina C → melasma + digestão + imunidade'},
+  {e:'🌱',n:'Espinafre',w:'Ferro + magnésio + folato: antifadiga'},
+  {e:'🍠',n:'Batata-doce',w:'Carbo que não estoura glicose + betacaroteno'},
+  {e:'🥦',n:'Brócolis',w:'Sulforafano: detox hepático + anti-melasma'},
+  {e:'🌰',n:'Castanha-do-pará',w:'2 un./dia = dose de selênio + anti-infla'},
+  {e:'🧄',n:'Alho',w:'Allicina: circulação + antimicrobiano'},
+  {e:'🫚',n:'Chia',w:'Ômega-3 vegetal + fibra → controle glicêmico'},
+  {e:'🫘',n:'Lentilha',w:'Proteína vegetal + ferro + fibra = saciedade'},
+  {e:'🌾',n:'Gengibre',w:'Anti-inflamatório + digestão + imunidade'},
+  {e:'🫚',n:'Azeite EV',w:'Polifenóis + ômega-9 + saciedade prolongada'},
+];
+
+// ═══════════════════════════════════════
+// RENDER MENU
+// ═══════════════════════════════════════
+function renderMenu(){
+  const keys=['seg','ter','qua','qui','sex','sab','dom'];
+  let h='';
+  keys.forEach(k=>{
+    const d=MENU[k];
+    const isTennis=k==='ter'||k==='sex';
+    h+=`<div id="${k}-f" style="margin-bottom:14px"><div class="card"${isTennis?' style="border-left:4px solid var(--mag)"':''}>
+      <div class="card-title">${d.emoji} ${d.label} `;
+    d.pills.forEach(p=>{ h+=`<span class="pill ${isTennis?'pp':'pb'}">${p}</span>`; });
+    h+='</div>';
+    if(d.note) h+=`<div class="day-note">${d.note}</div>`;
+    h+=mealBlock('☀️','Café da manhã','var(--mag)',d.cafe);
+    h+=mealBlock('🥗','Almoço','var(--em)',d.almoco);
+    h+=mealBlock('🍎','Lanche','var(--royal)',d.lanche);
+    h+=mealBlock('🌙','Jantar','var(--slate)',d.jantar);
+    h+='</div></div>';
+  });
+  document.getElementById('food-content').innerHTML=h;
+}
+
+function mealBlock(ico,lbl,col,opts){
+  let h=`<div class="meal-block"><div class="meal-head" style="color:${col}">${ico} ${lbl}</div><div class="meal-opts">`;
+  opts.forEach((o,i)=>{ h+=`<div class="mopt"><div class="onum">${i+1}</div><span>${o}</span></div>`; });
+  return h+'</div></div>';
+}
+
+// ═══════════════════════════════════════
+// HISTORY (stored in localStorage)
+// ═══════════════════════════════════════
+function renderHistory(){
+  const s=ls();
+  const hist=s.menuHistory||[];
+  const wk=getWeekKey();
+  const el=document.getElementById('food-hist');
+  // always show current week
+  let entries=[{week:wk,label:'Semana atual: '+getWeekLabel()},...hist.filter(h=>h.week!==wk)];
+  el.innerHTML=entries.slice(0,8).map((x,i)=>`<li>
+    <span>${i===0?'📋':'📁'} ${x.label}</span>
+    ${i===0?'<span class="pill pb">Ativa</span>':'<span style="font-size:10px;color:var(--slate)">Salvo</span>'}
+  </li>`).join('');
+}
+
+// ═══════════════════════════════════════
+// SHOPPING
+// ═══════════════════════════════════════
+function renderShop(){
+  const s=ls();const ck=s.shopCk||{};
+  let h='';
+  Object.entries(SHOP).forEach(([cat,items])=>{
+    h+=`<div class="shop-sec"><h3>${cat}</h3>`;
+    items.forEach(([name,qty],i)=>{
+      const key=cat+i;const checked=!!ck[key];
+      h+=`<label class="sitem${checked?' ck':''}">
+        <input type="checkbox" style="display:none"${checked?' checked':''} onchange="toggleShop('${key}',this)">
+        <div class="scb"${checked?' checked':''}></div>
+        <span style="flex:1">${name}</span>
+        <span style="font-size:10px;color:var(--slate);font-family:var(--mono);white-space:nowrap">${qty}</span>
+      </label>`;
+    });
+    h+='</div>';
+  });
+  document.getElementById('shop-content').innerHTML=h;
+  // sync visual checkboxes
+  document.querySelectorAll('.scb').forEach((cb,i)=>{
+    const inp=cb.parentElement.querySelector('input');
+    if(inp&&inp.checked)cb.setAttribute('checked','');
+  });
+}
+
+function toggleShop(key,el){
+  const s=ls();if(!s.shopCk)s.shopCk={};
+  s.shopCk[key]=el.checked;ss(s);renderShop();
+}
+
+function uncheckAll(){const s=ls();s.shopCk={};ss(s);renderShop();toast('🔄 Lista reiniciada!');}
+
+function copyList(){
+  let txt='🛒 Lista de compras – '+getWeekLabel()+'\n\n';
+  Object.entries(SHOP).forEach(([cat,items])=>{
+    txt+=cat+'\n';
+    items.forEach(([n,q])=>txt+=`  ▢ ${n} — ${q}\n`);
+    txt+='\n';
+  });
+  navigator.clipboard.writeText(txt).then(()=>toast('📋 Lista copiada!')).catch(()=>toast('⚠️ Não foi possível copiar'));
+}
+
+// ═══════════════════════════════════════
+// RECIPES
+// ═══════════════════════════════════════
+const FILTERS=[
+  {k:'all',l:'Todas'},
+  {k:'cafe',l:'☀️ Café'},
+  {k:'almoco',l:'🥗 Almoço'},
+  {k:'lanche',l:'🍎 Lanche'},
+  {k:'jantar',l:'🌙 Jantar'},
+  {k:'proteica',l:'💪 Proteica'},
+  {k:'rapida',l:'⚡ Rápida'},
+];
+let curFilter='all';
+
+function renderRecipeFilters(){
+  document.getElementById('filter-row').innerHTML=FILTERS.map(f=>
+    `<button class="btn btn-sm ${f.k===curFilter?'btn-p':'btn-g'}" onclick="filterRec('${f.k}')">${f.l}</button>`
+  ).join('');
+}
+
+function filterRec(f){curFilter=f;renderRecipeFilters();renderRecipes();}
+
+function renderRecipes(){
+  const list=curFilter==='all'?RECIPES:RECIPES.filter(r=>r.cat.includes(curFilter));
+  document.getElementById('rgrid').innerHTML=list.map(r=>`
+    <div class="rcard" onclick="openRecipe('${r.id}')">
+      <div class="rcard-top">${r.emoji}</div>
+      <div class="rcard-body">
+        <div class="rcard-title">${r.title}</div>
+        <div class="rcard-meta"><span>⏱ ${r.time}</span><span>🔥 ${r.cals}</span><span>💪 ${r.prot}</span></div>
+        <div>${r.tags.map(t=>`<span class="pill pg">${t}</span>`).join(' ')}</div>
+      </div>
+    </div>`).join('')||'<p style="color:var(--slate);padding:20px;font-size:13px">Nenhuma receita aqui ainda.</p>';
+}
+
+function openRecipe(id){
+  const r=RECIPES.find(x=>x.id===id);if(!r)return;
+  document.getElementById('mod-title').textContent=r.emoji+' '+r.title;
+  document.getElementById('mod-body').innerHTML=`
+    <div style="display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap">
+      <span class="pill pb">⏱ ${r.time}</span><span class="pill pb">🔥 ${r.cals}</span>
+      <span class="pill pg">💪 ${r.prot}</span><span class="pill pa">⚡ ${r.diff}</span>
+    </div>
+    <h4 style="font-size:13px;margin-bottom:7px">🛒 Ingredientes</h4>
+    <ul style="font-size:12px;line-height:1.9;padding-left:18px;margin-bottom:14px">${r.ing.map(i=>`<li>${i}</li>`).join('')}</ul>
+    <h4 style="font-size:13px;margin-bottom:7px">👨‍🍳 Modo de Preparo</h4>
+    <ol style="font-size:12px;line-height:1.9;padding-left:18px;margin-bottom:14px">${r.steps.map(s=>`<li>${s}</li>`).join('')}</ol>
+    <div style="background:var(--ice);border-radius:8px;padding:11px;font-size:11px;color:var(--royal);line-height:1.6">
+      💡 <strong>Dica:</strong> ${r.tip}
+    </div>
+    <div style="margin-top:10px">${r.tags.map(t=>`<span class="pill pg">${t}</span>`).join(' ')}</div>`;
+  document.getElementById('rmodal').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+
+function closeModal(){
+  document.getElementById('rmodal').classList.remove('open');
+  document.body.style.overflow='';
+}
+function closeMod(e){if(e.target===document.getElementById('rmodal'))closeModal();}
+
+// ═══════════════════════════════════════
+// BEST FOODS
+// ═══════════════════════════════════════
+function renderBestFoods(){
+  document.getElementById('bgrid').innerHTML=BFOODS.map(f=>`
+    <div class="bcard${f.top?' top':''}">
+      <div class="be">${f.e}</div>
+      <div class="bn">${f.n}${f.top?' ⭐':''}</div>
+      <div class="bw">${f.w}</div>
+    </div>`).join('');
+}
+
+// ═══════════════════════════════════════
+// GLUCOSE STEPS
+// ═══════════════════════════════════════
+const GSTEPS=[
+  {n:'Passo 1',t:'Fibras primeiro 🥗',b:'Salada e legumes antes de tudo. Reduz absorção de açúcar em até 73%.'},
+  {n:'Passo 2',t:'Proteína + gordura 🥚',b:'Depois das fibras. Prolonga saciedade e achata o pico de insulina.'},
+  {n:'Passo 3',t:'Carbo por último 🍚',b:'Arroz, batata-doce, pão no final. Mesmo prato, pico completamente diferente.'},
+  {n:'Passo 4',t:'Vinagre mágico 🍎',b:'1 col. vinagre de maçã + água 10 min antes de refeição com carbo. -30% no pico.'},
+  {n:'Passo 5',t:'Mova-se pós-refeição 🚶',b:'10-20 min de caminhada: músculos usam a glicose imediatamente. Pippo! 🐾'},
+  {n:'Passo 6',t:'Café salgado ☀️',b:'Café proteico sem açúcar = glicemia estável o dia todo = mais energia.'},
+];
+
+function renderGlucose(){
+  document.getElementById('gsteps').innerHTML=GSTEPS.map(g=>`
+    <div class="gs"><div class="gsn">${g.n}</div><div class="gst">${g.t}</div><div class="gsb">${g.b}</div></div>`).join('');
+}
+
+// ═══════════════════════════════════════
+// TIPS
+// ═══════════════════════════════════════
+const TIPS=[
+  {c:'blue',i:'🕐',t:'Regra dos 10 minutos',b:'Quando a fissura atacar, espere 10 min e beba 500ml de água. Em 90% dos casos passa — o corpo confunde sede com fome.'},
+  {c:'pink',i:'📸',t:'Foto antes de comer',b:'Fotografe cada prato. Cria consciência, reduz porções automaticamente e identifica padrões de sabotagem.'},
+  {c:'green',i:'🥦',t:'Kit emergência na geladeira',b:'Sempre prontos: palitos de cenoura + pepino + húmus, ovos cozidos, iogurte grego, amêndoas em porções. Fome = saudável.'},
+  {c:'gold',i:'🛒',t:'Mercado estratégico',b:'Lista + estômago cheio. Fique na borda do mercado (frescos). O que não entra em casa, não entra na boca.'},
+  {c:'blue',i:'🌅',t:'Ritual matinal',b:'Acordou: luz solar 10min + 500ml água. Café só 90 min depois (evita crash de cortisol). Roupa da academia pronta na noite anterior!'},
+  {c:'pink',i:'🍽️',t:'No restaurante',b:'Molho à parte. Comece pela salada. Sem pão na mesa. Água com limão enquanto espera. Você tem controle total!'},
+  {c:'green',i:'🐾',t:'Pippo é sua âncora',b:'A caminhada com Pippo obriga a sair de casa, criar movimento e luz natural — combate procrastinação e falta de energia. O hábito mais fácil de manter! 🐶'},
+];
+
+const LIPO=[
+  {c:'pink',i:'🩷',t:'Lipedema (suspeita)',b:'Exercícios de baixo impacto: elíptico, bike, caminhada, natação. Meia-calça de compressão nas caminhadas. Mínimo 2L água/dia — fundamental para o sistema linfático.'},
+  {c:'red',i:'🌞',t:'Melasma',b:'FPS 50+ todo dia, reaplicar a cada 2h. Vitamina C nos alimentos (morango, kiwi, laranja, acerola) age de dentro para fora. Açúcar e álcool pioram o melasma.'},
+  {c:'green',i:'🌿',t:'Anti-inflamatórios no prato',b:'Cúrcuma + pimenta-preta, gengibre fresco, ômega-3 (salmão, sardinha, chia, linhaça), frutas vermelhas e romã. Combatem inflamação que piora lipedema e melasma.'},
+];
+
+function renderTips(){
+  document.getElementById('tips-content').innerHTML=TIPS.map(t=>`
+    <div class="tip ${t.c}"><div class="tip-i">${t.i}</div><div><div class="tip-t">${t.t}</div><div class="tip-b">${t.b}</div></div></div>`).join('');
+  document.getElementById('lipo-content').innerHTML=LIPO.map(t=>`
+    <div class="tip ${t.c}"><div class="tip-i">${t.i}</div><div><div class="tip-t">${t.t}</div><div class="tip-b">${t.b}</div></div></div>`).join('');
+}
+
+// ═══════════════════════════════════════
+// HABITS
+// ═══════════════════════════════════════
+const DEF_HABITS=[
+  {id:'cafe',e:'🥚',l:'Café proteico s/ açúcar'},
+  {id:'fibras',e:'🥗',l:'Fibras antes do carbo'},
+  {id:'agua',e:'💧',l:'Beber 2L de água'},
+  {id:'vinagre',e:'🍎',l:'Vinagre pré-refeição'},
+  {id:'pippo-m',e:'🐾',l:'Pippo manhã 30min'},
+  {id:'pippo-n',e:'🌙',l:'Pippo noite 30min'},
+  {id:'treino',e:'🏋️',l:'Treino / Tênis'},
+  {id:'acucar',e:'🚫',l:'Sem açúcar refinado'},
+  {id:'sono',e:'😴',l:'Dormir 7-8h'},
+  {id:'fps',e:'🌞',l:'Protetor solar FPS50+'},
+  {id:'pos',e:'🚶',l:'Caminhar pós-refeição'},
+  {id:'ultra',e:'🥦',l:'Sem ultraprocessados'},
+];
+
+function renderHabits(){
+  const s=ls();const habits=s.habits||DEF_HABITS;const ck=s.checks||{};
+  const g=document.getElementById('hgrid');
+  Array.from(g.children).slice(8).forEach(c=>c.remove());
+  habits.forEach(h=>{
+    const lbl=document.createElement('div');lbl.className='hgl';
+    lbl.innerHTML=`<span>${h.e}</span><span style="line-height:1.3">${h.l}</span>`;g.appendChild(lbl);
+    DAYS.forEach((_,di)=>{
+      const cell=document.createElement('div');cell.className='hgc';
+      const key=h.id+'-'+di;
+      const cb=document.createElement('input');cb.type='checkbox';cb.className='hcb';cb.checked=!!ck[key];
+      cb.addEventListener('change',()=>{
+        const st=ls();if(!st.checks)st.checks={};st.checks[key]=cb.checked;ss(st);
+        updateScores();toast(cb.checked?'✅ Marcado!':'↩️ Desmarcado');
+      });
+      cell.appendChild(cb);g.appendChild(cell);
+    });
+  });
+  document.getElementById('wnotes').value=s.notes||'';
+  updateScores();
+}
+
+function updateScores(){
+  const s=ls();const h=s.habits||DEF_HABITS;const c=s.checks||{};
+  const total=h.length*7;const done=Object.values(c).filter(Boolean).length;
+  document.getElementById('sc-s').textContent=total?Math.round(done/total*100)+'%':'0%';
+  const td=new Date().getDay();const di=td===0?6:td-1;
+  let hj=0;h.forEach(x=>{if(c[x.id+'-'+di])hj++;});
+  document.getElementById('sc-h').textContent=hj+'/'+h.length;
+  let streak=0;
+  for(let d=di;d>=0;d--){let n=0;h.forEach(x=>{if(c[x.id+'-'+d])n++;});if(n>=h.length*.5)streak++;else break;}
+  document.getElementById('sc-f').textContent=streak+'🔥';
+}
+
+function saveNotes(){const s=ls();s.notes=document.getElementById('wnotes').value;ss(s);}
+
+function addHabit(){
+  const inp=document.getElementById('new-h');const v=inp.value.trim();if(!v)return;
+  const s=ls();if(!s.habits)s.habits=[...DEF_HABITS];
+  s.habits.push({id:'c'+Date.now(),e:'⭐',l:v});ss(s);
+  inp.value='';renderHabits();toast('✨ Hábito adicionado!');
+}
+
+// ═══════════════════════════════════════
+// MEASURES
+// ═══════════════════════════════════════
+function renderMeas(){
+  const s=ls();const m=s.meas||[];
+  const tbody=document.getElementById('meas-body');
+  if(!m.length){tbody.innerHTML='<tr><td colspan="9" style="text-align:center;padding:16px;color:var(--slate)">Nenhuma medida ainda 💪</td></tr>';updateProg(null);return;}
+  tbody.innerHTML=m.map((x,i)=>`<tr>
+    <td style="font-weight:600;font-family:var(--mono)">${x.date}</td>
+    <td><strong>${x.p||'–'} kg</strong></td><td>${x.g||'–'}%</td>
+    <td>${x.c||'–'}</td><td>${x.q||'–'}</td><td>${x.a||'–'}</td>
+    <td>${x.cd||'–'}</td><td>${x.bd||'–'}</td>
+    <td><button class="btn btn-g btn-sm" onclick="delMeas(${i})">🗑️</button></td>
+  </tr>`).join('');
+  updateProg(m[m.length-1].p);
+}
+
+function updateProg(w){
+  const pct=w?Math.min(100,Math.max(0,Math.round(((68-parseFloat(w))/(68-62))*100))):0;
+  document.getElementById('prog-pct').textContent=pct+'% concluído';
+  document.getElementById('prog-fill').style.width=pct+'%';
+}
+
+function saveMeas(){
+  const g=id=>document.getElementById(id).value;
+  const m={date:g('mdate')||new Date().toISOString().split('T')[0],
+    p:g('m-p'),g:g('m-g'),c:g('m-c'),q:g('m-q'),a:g('m-a'),
+    bd:g('m-bd'),be:g('m-be'),cd:g('m-cd'),ce:g('m-ce'),pt:g('m-pt')};
+  const s=ls();if(!s.meas)s.meas=[];
+  s.meas.push(m);s.meas.sort((a,b)=>a.date.localeCompare(b.date));ss(s);
+  renderMeas();clearMeas();toast('📏 Medidas salvas!');
+}
+
+function clearMeas(){['m-p','m-g','m-c','m-q','m-a','m-bd','m-be','m-cd','m-ce','m-pt'].forEach(id=>document.getElementById(id).value='');}
+function delMeas(i){if(!confirm('Remover?'))return;const s=ls();s.meas.splice(i,1);ss(s);renderMeas();toast('🗑️ Removido');}
+
+// ═══════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════
+function initApp(){
+  document.getElementById('wbadge').textContent=getWeekLabel();
+  document.getElementById('wlabel').textContent=getWeekLabel();
+  document.getElementById('mdate').value=new Date().toISOString().split('T')[0];
+
+  renderMenu();
+  renderHistory();
+  renderShop();
+  renderRecipeFilters();
+  renderRecipes();
+  renderBestFoods();
+  renderGlucose();
+  renderTips();
+  const s=ls();
+  if(!s.habits){s.habits=[...DEF_HABITS];ss(s);}
+  renderHabits();
+  renderMeas();
+}
+
+// auto-init if already logged in
+if(sessionStorage.getItem('auth')==='1') initApp();
+
+// Enter key on password
+document.getElementById('pwd-input').addEventListener('keydown',e=>{if(e.key==='Enter')tryLogin();});
+</script>
+</body>
+</html>
